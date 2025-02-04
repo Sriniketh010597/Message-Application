@@ -116,7 +116,7 @@ public class TheClient extends JFrame implements ActionListener {
             verticalscale.add(onright);
             verticalscale.add(Box.createVerticalStrut(15));
 
-            chatpanel.add(vertical, BorderLayout.PAGE_START);
+            chatpanel.add(verticalscale, BorderLayout.PAGE_START);
 
             messagefield.setText("");
 
