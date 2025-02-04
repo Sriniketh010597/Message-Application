@@ -72,11 +72,11 @@ public class ChatServer extends JFrame implements ActionListener {
         theusername.setFont(new Font("SAN_SERIF", Font.BOLD, 18));
         headerpanel.add(theusername);
         
-        JLabel indicator = new JLabel("Active Now");
-        indicator.setBounds(110, 35, 100, 18);
-        indicator.setForeground(Color.WHITE);
-        indicator.setFont(new Font("SAN_SERIF", Font.BOLD, 14));
-        headerpanel.add(indicator);
+        JLabel statusindicator = new JLabel("Online");
+        statusindicator.setBounds(110, 35, 100, 18);
+        statusindicator.setForeground(Color.WHITE);
+        statusindicator.setFont(new Font("SAN_SERIF", Font.BOLD, 14));
+        headerpanel.add(statusindicator);
         
         chatpanel = new JPanel();
         chatpanel.setBounds(5, 75, 440, 570);
