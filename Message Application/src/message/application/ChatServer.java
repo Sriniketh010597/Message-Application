@@ -6,24 +6,26 @@ import java.awt.*;
 import java.awt.event.*;
 import java.util.*;
 import java.text.*;
+import java.net.*;
+import java.io.*; 
 
-
-
-public class ChatServer extends JFrame implements ActionListener {
+public class ChatServer implements ActionListener {
     
     JTextField messagefield;
     JPanel chatpanel;
     static Box verticalscale = Box.createVerticalBox();
+    static JFrame frm= new JFrame(); 
+    static DataOutputStream dout; 
     
     ChatServer() {
         
-        setLayout(null);
+        frm.setLayout(null);
         
         JPanel headerpanel = new JPanel();
         headerpanel.setBackground(new Color(7, 94, 84));
         headerpanel.setBounds(0, 0, 450, 70);
         headerpanel.setLayout(null);
-        add(headerpanel);
+        frm.add(headerpanel);
         
         ImageIcon i1 = new ImageIcon(ClassLoader.getSystemResource("icons/3.png"));
         Image i2 = i1.getImage().getScaledInstance(25, 25, Image.SCALE_DEFAULT);
@@ -80,12 +82,12 @@ public class ChatServer extends JFrame implements ActionListener {
         
         chatpanel = new JPanel();
         chatpanel.setBounds(5, 75, 440, 570);
-        add(chatpanel);
+        frm.add(chatpanel);
         
         messagefield = new JTextField();
         messagefield.setBounds(5, 655, 310, 40);
         messagefield.setFont(new Font("SAN_SERIF", Font.PLAIN, 16));
-        add(messagefield);
+        frm.add(messagefield);
         
         JButton sendmessage = new JButton("Send");
         sendmessage.setBounds(320, 655, 123, 40);
@@ -93,14 +95,14 @@ public class ChatServer extends JFrame implements ActionListener {
         sendmessage.setForeground(Color.WHITE);
         sendmessage.addActionListener(this);
         sendmessage.setFont(new Font("SAN_SERIF", Font.PLAIN, 16));
-        add(sendmessage);
+        frm.add(sendmessage);
         
-        setSize(450, 700);
-        setLocation(200, 50);
-        setUndecorated(true);
-        getContentPane().setBackground(Color.WHITE);
+        frm.setSize(450, 700);
+        frm.setLocation(200, 50);
+        frm.setUndecorated(true);
+        frm.getContentPane().setBackground(Color.WHITE);
         
-        setVisible(true);
+        frm.setVisible(true);
     }
     
     public void actionPerformed(ActionEvent ae) {
@@ -118,13 +120,13 @@ public class ChatServer extends JFrame implements ActionListener {
 
             chatpanel.add(verticalscale, BorderLayout.PAGE_START);
 
-            
+            dout.writeUTF(out);
 
             messagefield.setText("");
 
-            repaint();
-            invalidate();
-            validate();   
+            frm.repaint();
+            frm.invalidate();
+            frm.validate();   
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -155,6 +157,26 @@ public class ChatServer extends JFrame implements ActionListener {
         
     public static void main(String[] args) {
         new ChatServer();
+
+        try{
+            ServerSocket servsocket= new ServerSocket(6001); 
+            while(true) {
+                Socket sk= servsocket.accept();
+                DataInputStream din= new DataInputStream(sk.getInputStream()); 
+                dout= new DataOutputStream(sk.getOutputStream()); 
+
+                while(true) {
+                    String chat= din.readUTF(); 
+                    JPanel chatpanel= formatLabel(chat); 
+
+                    JPanel left = new JPanel(new BorderLayout());
+                    left.add(chatpanel, BorderLayout.LINE_START);
+                    verticalscale.add(left);
+                    frm.validate();      
+            }     }   
+        } catch (Exception e) {
+            e.printStackTrace();
+        }   
         new TheClient();
     }   
         
