@@ -6,24 +6,27 @@ import java.awt.*;
 import java.awt.event.*;
 import java.util.*;
 import java.text.*;
+import java.net.*;
+import java.io.*;
 
-
-public class TheClient extends JFrame implements ActionListener {
+public class TheClient implements ActionListener {
     
     JTextField messagefield;
     static JPanel chatpanel;
     static Box verticalscale = Box.createVerticalBox();
-   
+    static JFrame frm= new JFrame(); 
+    
+    static DataOutputStream dout;
     
         TheClient() {
         
-        setLayout(null);
+        frm.setLayout(null);
         
         JPanel headerpanel = new JPanel();
         headerpanel.setBackground(new Color(7, 94, 84));
         headerpanel.setBounds(0, 0, 450, 70);
         headerpanel.setLayout(null);
-        add(headerpanel);
+        frm.add(headerpanel);
         
         ImageIcon i1 = new ImageIcon(ClassLoader.getSystemResource("icons/3.png"));
         Image i2 = i1.getImage().getScaledInstance(25, 25, Image.SCALE_DEFAULT);
@@ -80,12 +83,12 @@ public class TheClient extends JFrame implements ActionListener {
         
         chatpanel = new JPanel();
         chatpanel.setBounds(5, 75, 440, 570);
-        add(chatpanel);
+        frm.add(chatpanel);
         
         messagefield = new JTextField();
         messagefield.setBounds(5, 655, 310, 40);
         messagefield.setFont(new Font("SAN_SERIF", Font.PLAIN, 16));
-        add(messagefield);
+        frm.add(messagefield);
         
         JButton sendmessage = new JButton("Send");
         sendmessage.setBounds(320, 655, 123, 40);
@@ -93,14 +96,14 @@ public class TheClient extends JFrame implements ActionListener {
         sendmessage.setForeground(Color.WHITE);
         sendmessage.addActionListener(this);
         sendmessage.setFont(new Font("SAN_SERIF", Font.PLAIN, 16));
-        add(sendmessage);
+        frm.add(sendmessage);
         
-        setSize(450, 700);
-        setLocation(800, 50);
-        setUndecorated(true);
-        getContentPane().setBackground(Color.WHITE);
+        frm.setSize(450, 700);
+        frm.setLocation(800, 50);
+        frm.setUndecorated(true);
+        frm.getContentPane().setBackground(Color.WHITE);
         
-        setVisible(true);
+        frm.setVisible(true);
     }
     
     public void actionPerformed(ActionEvent ae) {
@@ -118,11 +121,13 @@ public class TheClient extends JFrame implements ActionListener {
 
             chatpanel.add(verticalscale, BorderLayout.PAGE_START);
 
+            dout.writeUTF(out);
+
             messagefield.setText("");
 
-            repaint();
-            invalidate();
-            validate();
+            frm.repaint();
+            frm.invalidate();
+            frm.validate();
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -153,7 +158,29 @@ public class TheClient extends JFrame implements ActionListener {
     
     public static void main(String[] args) {
         new TheClient();
-        
+
+        try {
+            Socket sk = new Socket("127.0.0.1", 6001);
+            DataInputStream din = new DataInputStream(sk.getInputStream());
+            dout = new DataOutputStream(sk.getOutputStream());
+            
+            while(true) {
+                chatpanel.setLayout(new BorderLayout());
+                String chat = din.readUTF();
+                JPanel panel = formatLabel(chat);
+
+                JPanel left = new JPanel(new BorderLayout());
+                left.add(panel, BorderLayout.LINE_START);
+                verticalscale.add(left);
+                
+                verticalscale.add(Box.createVerticalStrut(15));
+                chatpanel.add(verticalscale, BorderLayout.PAGE_START);
+                
+                frm.validate();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
         
         }
     }
+}
